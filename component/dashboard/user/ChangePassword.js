@@ -1,9 +1,9 @@
 "use client";
 
-export default function Review() {
+export default function ChangPassword() {
   return (
     <>
-      <h1>Review Component</h1>
+      <h1>ChangPassword Component</h1>
     </>
   );
 }

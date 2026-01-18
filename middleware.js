@@ -1,8 +1,12 @@
+// It protects routes
+// It checks if the user is logged in
+// It checks the user’s role (admin or user)
+// If something is wrong → redirect to home (/)
+
+
 import {withAuth} from "next-auth/middleware";
 
-
 import { NextResponse } from "next/server";
-
 
 
 export const config = {
@@ -35,6 +39,7 @@ export default withAuth(
         if(url?.includes("/admin") && userRole !== "admin"){
             return NextResponse.redirect(new URL("/", req.url));
         }
+        
         if(url?.includes("/user") && userRole !== "user"){
             return NextResponse.redirect(new URL("/", req.url));
         }

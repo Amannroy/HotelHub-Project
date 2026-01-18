@@ -1,9 +1,9 @@
 "use client";
 
-export default function ChangePassword() {
+export default function Dashboard() {
   return (
     <>
-      <h1>ChangePassword Component</h1>
+      <h1>Dashboard Component</h1>
     </>
   );
 }

@@ -24,7 +24,6 @@ const countries = [
 ];
 
 export default function ProfileUpdateForm() {
-  
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -46,98 +45,99 @@ export default function ProfileUpdateForm() {
   useEffect(() => {
     // Used here to fetch existing user profile data
     fetchUserData();
-  },[])
+  }, []);
 
   // Get existing profile data from backend
-  const fetchUserData = async() => {
-      try{
-        // Call backend API to get current admin profile
-        const response = await fetch(`${process.env.API}/admin/profile`);
+  const fetchUserData = async () => {
+    try {
+      // Call backend API to get current admin profile
+      const response = await fetch(`${process.env.API}/admin/profile`);
 
-        // If response status is not 200–299, throw error
-        if(!response.ok){
-          throw new Error("Failed to fetch user data");
-        }
-
-        // Convert response into JSON
-        const data = await response.json();
-
-        // Fill form fields with data coming from backend
-        setEmail(data?.email);
-        setName(data?.name);
-        setProfileImagePreview(data?.image);
-        setMobileNumber(data?.mobileNumber || "");
-        setAddress(data?.address || "");
-        setCountry(data?.country);
-      }catch(error){
-        console.log("Error fetching user data");
-        
+      // If response status is not 200–299, throw error
+      if (!response.ok) {
+        throw new Error("Failed to fetch user data");
       }
-  }
+
+      // Convert response into JSON
+      const data = await response.json();
+
+      // Fill form fields with data coming from backend
+      setEmail(data?.email);
+
+      setName(data?.name);
+      setProfileImagePreview(data?.image);
+      setMobileNumber(data?.mobileNumber || "");
+
+      setAddress(data?.address || "");
+      setCountry(data?.country);
+    } catch (error) {
+      console.log("Error fetching user data");
+    }
+  };
 
   // Checks all inputs before submit
-  const validateForm=()=>{
-      const errors = {};
-      if(!name) errors.name = "Name is required";
+  const validateForm = () => {
+    const errors = {};
+    if (!name) errors.name = "Name is required";
 
-      if(!email){
-        errors.email = "Email is required";
-      }else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-        errors.email = "Email is invalid";
-      }
+    if (!email) {
+      errors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errors.email = "Email is invalid";
+    }
 
-      if(!mobileNumber && !/^[0-9]{10}$/.test(mobileNumber)){
-        errors.mobileNumber = "Please Enter a valid 10 digit mobile numeber";
-      }
+    if (!mobileNumber && !/^[0-9]{10}$/.test(mobileNumber)) {
+      errors.mobileNumber = "Please Enter a valid 10 digit mobile numeber";
+    }
 
-      if(address && address.length < 5){
-        errors.address = "Address is too short";
-      }
+    if (address && address.length < 5) {
+      errors.address = "Address is too short";
+    }
 
-      if(country && !countries.some((c) => c.code === country || c.name === country)){
-        errors.country = "Please select a valid country";
-      }
+    if (
+      country &&
+      !countries.some((c) => c.code === country || c.name === country)
+    ) {
+      errors.country = "Please select a valid country";
+    }
 
-      if(!password) errors.password = "Password is required";
+    if (!password) errors.password = "Password is required";
 
-      if(password !== confirmPassword){
-        errors.confirmPassword = "password do not match";
-      }
+    if (password !== confirmPassword) {
+      errors.confirmPassword = "password do not match";
+    }
 
-      setErrors(errors);
-      
-      // if no error then -> form is valid
-      return Object.keys(errors).length === 0; 
-  }
+    setErrors(errors);
 
-  
+    // if no error then -> form is valid
+    return Object.keys(errors).length === 0;
+  };
+
   // Handle image selection + preview
   const handleImageChange = (e) => {
-     // Get the selected file from input
-      const file = e.target.files[0];
+    // Get the selected file from input
+    const file = e.target.files[0];
 
-      if(file){
-        // Store original image file for upload
-        setProfileImage(file);
+    if (file) {
+      // Store original image file for upload
+      setProfileImage(file);
 
-        // FileReader reads file so browser can preview it
-        const reader = new FileReader(); 
+      // FileReader reads file so browser can preview it
+      const reader = new FileReader();
 
-        // This runs after the file is fully read
-        reader.onloadend=() => {
-          //reader.result = base64 image
-          // Used to show preview instantly
-          setProfileImagePreview(reader.result);
-        }
-        // Converts image into base64 format
-        reader.readAsDataURL(file);
-      }
-
-  }
-
+      // This runs after the file is fully read
+      reader.onloadend = () => {
+        //reader.result = base64 image
+        // Used to show preview instantly
+        setProfileImagePreview(reader.result);
+      };
+      // Converts image into base64 format
+      reader.readAsDataURL(file);
+    }
+  };
 
   // Upload image and get URL
-   const uploadImageToCloudinary = async (image) => {
+  const uploadImageToCloudinary = async (image) => {
     // FormData is required for file uploads
     const formData = new FormData();
 
@@ -147,7 +147,7 @@ export default function ProfileUpdateForm() {
     // Cloudinary uplaod preset
     formData.append("upload_preset", "ml_default");
 
-    // Send image to Cloudinar
+    // Send image to Cloudinary
     const response = await fetch(
       `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload`,
       {
@@ -162,57 +162,56 @@ export default function ProfileUpdateForm() {
   };
 
   // Main form submit logic
-  const handleSubmit = async(e) => {
-      e.preventDefault();
-      //alert("Submit Form");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    //alert("Submit Form");
 
-      setServerMessage("");
+    setServerMessage("");
 
-      if(!validateForm()) return;
+    if (!validateForm()) return;
 
-      let imageUrl = profileImagePreview;
-      if(profileImage){
-          imageUrl = await uploadImageToCloudinary(profileImage);
+    let imageUrl = profileImagePreview;
+    if (profileImage) {
+      imageUrl = await uploadImageToCloudinary(profileImage);
 
-          setIsSuccess(true);
-          setServerMessage("Image Uploaded Successfully");
+      setIsSuccess(true);
+      setServerMessage("Image Uploaded Successfully");
+    }
 
-      }
+    const requestBody = {
+      name,
+      email,
+      password,
+      mobileNumber,
+      address,
+      country,
+      profileImage: imageUrl,
+    };
 
-      const requestBody = {
-        name, 
-        email,
-        password, 
-        mobileNumber,
-        address,
-        country,
-        profileImage: imageUrl,
-      };
+    console.log(requestBody);
 
-      console.log(requestBody);
-      
-      // Send updated profile data to backend
-      const response = await fetch(`${process.env.API}/admin/profile`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(requestBody),
-      });
+    // Send updated profile data to backend
+    const response = await fetch(`${process.env.API}/admin/profile`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if(!response.ok){
-        setIsSuccess(false);
-        setServerMessage(data?.err);
-      }else{
-        setIsSuccess(true);
-        setServerMessage(data?.msg);
-        
-        setPassword("");
-        setConfirmPassword("");
-      }
-  }
+    if (!response.ok) {
+      setIsSuccess(false);
+      setServerMessage(data?.err);
+    } else {
+      setIsSuccess(true);
+      setServerMessage(data?.msg);
+
+      setPassword("");
+      setConfirmPassword("");
+    }
+  };
   return (
     <>
       <Box
@@ -251,12 +250,11 @@ export default function ProfileUpdateForm() {
               textAlign: { xs: "center", sm: "left" },
             }}
           >
-
             {profileImagePreview && (
               <Box mt={2} textAlign="center">
                 <div className="image-container">
                   <img
-                   src={profileImagePreview}
+                    src={profileImagePreview}
                     alt="Profile Preview"
                     className="profile-image"
                   />
@@ -285,8 +283,7 @@ export default function ProfileUpdateForm() {
               label="Name"
               variant="outlined"
               value={name}
-              onChange={(e)=>setName(e.target.value)}
-            
+              onChange={(e) => setName(e.target.value)}
               error={!!errors.name}
               helperText={errors.name}
               fullWidth
@@ -314,7 +311,6 @@ export default function ProfileUpdateForm() {
               variant="outlined"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-            
               error={!!errors.email}
               helperText={errors.email}
               fullWidth
@@ -342,7 +338,6 @@ export default function ProfileUpdateForm() {
               variant="outlined"
               value={mobileNumber}
               onChange={(e) => setMobileNumber(e.target.value)}
-          
               error={!!errors.mobileNumber}
               helperText={errors.mobileNumber}
               fullWidth
@@ -370,7 +365,6 @@ export default function ProfileUpdateForm() {
               variant="outlined"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-            
               error={!!errors.address}
               helperText={errors.address}
               fullWidth
@@ -436,7 +430,6 @@ export default function ProfileUpdateForm() {
               variant="outlined"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-
               error={!!errors.password}
               helperText={errors.password}
               fullWidth
@@ -465,7 +458,6 @@ export default function ProfileUpdateForm() {
               variant="outlined"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-      
               error={!!errors.confirmPassword}
               helperText={errors.confirmPassword}
               fullWidth
@@ -510,9 +502,7 @@ export default function ProfileUpdateForm() {
               }}
             >
               Upload Profile Image
-              <input type="file" hidden 
-              onChange={handleImageChange} 
-              />
+              <input type="file" hidden onChange={handleImageChange} />
             </Button>
             <Button
               type="submit"
