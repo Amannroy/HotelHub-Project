@@ -6,6 +6,8 @@ import TopNav from "@/component/nav/TopNav";
 import Navbar from "@/component/nav/Navbar";
 import { SessionProvider } from "next-auth/react";
 
+import { ToastContainer } from 'react-toastify';
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -16,19 +18,34 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import { usePathname } from "next/navigation";
 export default function RootLayout({ children }) {
+
+  const pathname = usePathname();
+  const isAdminDashboard = pathname === "/dashboard/admin";
+
   return (
     <html lang="en">
-      <body
-        suppressHydrationWarning
+      <SessionProvider>
+      <body suppressHydrationWarning 
         className={`${geistSans.variable} ${geistMono.variable}`}
       >
-        <SessionProvider>
-          <TopNav />
-          <Navbar />
+
+        <ToastContainer />
+        
+        {
+          !isAdminDashboard && (
+            <>
+               <TopNav />
+               <Navbar />
+            </>
+          )
+        }
+        
+         
           {children}
-        </SessionProvider>
       </body>
+      </SessionProvider>
     </html>
   );
 }
