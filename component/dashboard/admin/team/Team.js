@@ -37,17 +37,40 @@ export default function TeamTable() {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const [openAddModal, setOpenAddModal] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const [employees, setEmployees] = useState([]);
   
+  
+  useEffect(() => {
+      fetchEmployees();
+  }, [])
+
+  const fetchEmployees = async () => {
+    try{
+
+      setLoading(true);
+
+      const response = await fetch(`${process.env.API}/admin/team`);
+      
+      const data = await response.json();
+
+      // Update the employee state with the fetched data from the server sid
+      setEmployees(data);
+
+
+    }catch(error){
+      
+      toast.error("Failed to fetch team member");
+
+    }finally{
+      setLoading(false);
+
+    }
+  }
   
   const handleAddSuccess = () => {
     setOpenAddModal(false);
   }
-
-
-
-
-
-
 
 
   const handleChangePage = (event, newPage) => {
@@ -77,7 +100,7 @@ export default function TeamTable() {
           </Button>
         </Box>
 
-        {/* <TableContainer
+        <TableContainer
           sx={{
             maxHeight: "70vh",
             borderRadius: "12px",
@@ -158,7 +181,7 @@ export default function TeamTable() {
                       >
                         <Tooltip title="Edit">
                           <IconButton
-                            onClick={() => handleEditClick(employee)}
+                            // onClick={() => handleEditClick(employee)}
                             sx={{ color: colors.edit }}
                             size={isSmallScreen ? "small" : "medium"}
                             disabled={loading}
@@ -170,7 +193,7 @@ export default function TeamTable() {
                         </Tooltip>
                         <Tooltip title="Delete">
                           <IconButton
-                            onClick={() => handleDeleteClick(employee)}
+                            // onClick={() => handleDeleteClick(employee)}
                             sx={{ color: colors.delete }}
                             size={isSmallScreen ? "small" : "medium"}
                             disabled={loading}
@@ -206,7 +229,7 @@ export default function TeamTable() {
               color: "#667eea",
             },
           }}
-        /> */}
+        />
       </StyledPaper>
 
       <AddTeamModal

@@ -27,6 +27,8 @@ export async function POST(req){
     // Parse the incoming request bodies that you got in JSON format from the client
     const body = await req.json();
          const {name, image, position} = body;
+
+         
     try{
          const team = await Team.create({
             name, image, position,

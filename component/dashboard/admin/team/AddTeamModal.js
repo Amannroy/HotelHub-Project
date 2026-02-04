@@ -18,46 +18,120 @@ export default function AddTeamModal({
   loading,
   setLoading,
 }) {
+  // State to store new team member details
+  const [newMember, setNewMember] = useState({
+    name: "",
+    position: "",
+    image: null,          // actual file object
+    previewImage: "",     // base64 preview for UI
+  });
 
-    const [newMember, setNewMember] = useState({
-        name : "",
+  // Handles text input changes (name & position)
+  // Updates the corresponding field in state dynamically
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    setNewMember((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Handles image file selection
+  // Converts image into preview using FileReader
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+
+      // Runs after file is fully read
+      reader.onloadend = () => {
+        setNewMember((prev) => ({
+          ...prev,
+          image: file,               // store original file
+          previewImage: reader.result, // base64 preview
+        }));
+      };
+
+      // Convert image file to base64
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Main function to add a new team member
+  // 1. Validate inputs
+  // 2. Upload image to Cloudinary (if exists)
+  // 3. Send data to backend API
+  const handleAddMember = async () => {
+    // Validation: required fields
+    if (!newMember.name || !newMember.position) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      let imageUrl = "";
+
+      // If image exists, upload it to Cloudinary
+      if (newMember.image) {
+        const imageData = new FormData();
+        imageData.append("file", newMember.image);
+        imageData.append("upload_preset", "ml_default");
+
+        // Upload image to Cloudinary
+        const response = await fetch(
+          `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload`,
+          {
+            method: "POST",
+            body: imageData,
+          }
+        );
+
+        // Extract secure image URL
+        const data = await response.json();
+        imageUrl = data.secure_url;
+      }
+
+      // Send team member data to backend API
+      const response = await fetch(`${process.env.API}/admin/team`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newMember.name,
+          position: newMember.position,
+          image: imageUrl,
+        }),
+      });
+
+      const data = await response.json();
+
+      // Inform parent component about success
+      onSuccess(data);
+
+      toast.success("Team member added successfully");
+
+      // Reset form state after success
+      setNewMember({
+        name: "",
         position: "",
         image: null,
         previewImage: "",
-    })
-
-    const handleInputChange = (e) => {
-        const {name, value} = e.target;
-        setNewMember((prev) => ({
-            ...prev,
-            [name]: value,
-        }))
+      });
+    } catch (error) {
+      console.log("Error Adding Team", error);
+      toast.error("Failed to add team member");
+    } finally {
+      // Always stop loading spinner
+      setLoading(false);
     }
+  };
 
-    const handleImageUpload = (e) => {
-        const file = e.target.files[0];
 
-        if(file){
-            const reader = new FileReader();
-
-            reader.onloadend = () => {
-                  setNewMember((prev) => (
-                    {
-                     ...prev,
-                     image:file,
-
-                     previewImage: reader.result,
-                    }));
-            }
-
-            reader.readAsDataURL(file);
-        }
-    }
-
-    const handleAddMember = () => {
-        alert("Team");
-    }
- 
   return (
     <Modal open={open} onClose={onClose} aria-labelledby="add-team-modal">
       <Box sx={modalStyle}>
