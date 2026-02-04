@@ -40,7 +40,7 @@ export default function TeamTable() {
   
   
   const handleAddSuccess = () => {
-    setOpenAddModa(false);
+    setOpenAddModal(false);
   }
 
 
