@@ -25,7 +25,7 @@ const fetchEmployees = async() => {
    
     try{
 
-        const response = await fetch(`${process.env.API}/admin/teamlist`);
+        const response = await fetch(`${process.env.API}/team`);
 
         const data = await response.json();
 

@@ -49,6 +49,8 @@ export async function DELETE(req, context){
         // Find the team member by id from the keyword parameter in the document
         const deletingTeam = await Team.findByIdAndDelete(context.params.id);
 
+        console.log("Deleting Team", deletingTeam);
+        
         // Return the deleted document as a confirmation in the resposne to the client side
         return NextResponse.json(deletingTeam);
 
